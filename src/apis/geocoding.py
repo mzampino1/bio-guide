@@ -11,7 +11,7 @@ def is_park(result):
 
 def get_coordinates(location_string):
     """
-    Converts a location string into (latitude, longitude)
+    Converts a location string into (latitude, longitude, raw_result)
     using the OpenStreetMap Nominatim API.
     """
     params = {
@@ -19,7 +19,6 @@ def get_coordinates(location_string):
         "format": "json",
         "limit": 1
     }
-    
     headers = {
         "User-Agent": "BioGuide/1.0 (https://github.com/mzampino1/bio-guide)"
     }
@@ -30,12 +29,12 @@ def get_coordinates(location_string):
         data = response.json()
         
         if data:
-            # OpenStreetMap returns coordinates as strings, convert them to floats
             lat = float(data[0]["lat"])
             lng = float(data[0]["lon"])
-            return lat, lng
+            # Return coordinates and the raw dictionary result
+            return lat, lng, data[0]
             
     except Exception as e:
         print(f"Geocoding error: {e}")
         
-    return None, None
+    return None, None, None
