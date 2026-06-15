@@ -108,6 +108,5 @@ def test_get_location_observations_pagination_limit(mock_get, mock_sleep):
     # Page 1 fetches 200. Page 2 fetches another 200 (Total 400). Loop terminates and truncates to 250.
     result = get_location_observations(40.7851, -73.9683, max_observations=250)
 
-    # Assert
     assert len(result) == 250
     assert mock_get.call_count == 2
