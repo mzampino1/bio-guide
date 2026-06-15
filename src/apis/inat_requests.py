@@ -16,10 +16,14 @@ def get_location_observations(lat, lng, radius=5, per_page=3):
         "order": "desc",
         "order_by": "created_at"
     }
+
+    headers = {
+        "User-Agent": "BioGuide/1.0 (https://github.com/mzampino1/bio-guide)"
+    }
     
     try:
         print(f"Sending request to iNaturalist for coordinates: {lat}, {lng}...")
-        response = requests.get(BASE_URL, params=params)
+        response = requests.get(BASE_URL, params=params, headers=headers)
         
         # This will raise an exception if the API returns an error status code
         response.raise_for_status() 
