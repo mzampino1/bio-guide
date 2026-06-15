@@ -1,19 +1,21 @@
+from datetime import datetime, timedelta
 import requests
 import time
 
 BASE_URL = "https://api.inaturalist.org/v1/observations"
 
-def get_location_observations(lat, lng, radius=5, per_page=3, bbox=None):
+def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=5000):
     """
     Fetches a small batch of recent observations from iNaturalist based on coordinates.
     """
-    # iNaturalist API accepts parameters to filter the observation results
+    
+    one_month_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+
     params = {
-        "lat": lat,
-        "lng": lng,
-        "per_page": per_page,
+        "per_page": 200,
         "order": "desc",
         "order_by": "created_at",
+        "d1": one_month_ago
     }
 
     if bbox:
@@ -24,43 +26,49 @@ def get_location_observations(lat, lng, radius=5, per_page=3, bbox=None):
             "nelng": bbox["nelng"],
         })
     else:
-        params["radius"] = radius
+        params.update({
+            "lat": lat,
+            "lng": lng,
+            "radius": radius
+        })
 
     headers = {
         "User-Agent": "BioGuide/1.0 (https://github.com/mzampino1/bio-guide)"
     }
     
-    try:
-        print(f"Sending request to iNaturalist for coordinates: {lat}, {lng}...")
-        response = requests.get(BASE_URL, params=params, headers=headers)
-        
-        # This will raise an exception if the API returns an error status code
-        response.raise_for_status() 
-        
-        return response.json()
-        
-    except requests.exceptions.RequestException as e:
-        print(f"API Request failed: {e}")
-        return None
+    all_observations = []
+    current_page = 1
 
-# Testing
-if __name__ == "__main__":
-    # Test coordinates (Central Park, NY as a placeholder)
-    TEST_LAT = 40.7851
-    TEST_LNG = -73.9683
-    
-    data = get_location_observations(TEST_LAT, TEST_LNG)
-    
-    if data:
-        results = data.get("results", [])
-        print(f"\n--- Success! Retrieved {len(results)} observations ---")
+    while len(all_observations) < max_observations:
+        params["page"] = current_page
         
-        # Print out observations
-        for result in results:
-            print(f"ID: {result.get('id')}")
-            print(f"Common Name: {result.get('taxon', {}).get('preferred_common_name', 'Unknown')}")
-            print(f"Taxon Name: {result.get('taxon', {}).get('name', 'Unknown')}")
-            print(f"Location: {result.get('location')}")
-            print()
-    else:
-        print("\nNo data returned.")
+        try:
+            print(f"Fetching page {current_page} (Collected so far: {len(all_observations)})...")
+            response = requests.get(BASE_URL, params=params, headers=headers)
+            response.raise_for_status() 
+            data = response.json()
+            
+            results = data.get("results", [])
+            if not results:
+                print("No more observations matching these parameters found. Ending search.")
+                break
+                
+            all_observations.extend(results)
+            
+            # If the server hands back a batch smaller than our requested limit,
+            # we've reached the absolute end of their record index for this area.
+            if len(results) < params["per_page"]:
+                print("Final incomplete page received. Ending search.")
+                break
+                
+            current_page += 1
+            
+            # Rate limiting to avoid overwhelming the API
+            time.sleep(1.5)
+            
+        except requests.exceptions.RequestException as e:
+            print(f"API Request failed on page {current_page}: {e}")
+            break
+
+    # Truncate results cleanly if a final page pushed slightly past the limit
+    return all_observations[:max_observations]
