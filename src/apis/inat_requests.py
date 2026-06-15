@@ -3,7 +3,7 @@ import time
 
 BASE_URL = "https://api.inaturalist.org/v1/observations"
 
-def get_location_observations(lat, lng, radius=5, per_page=3):
+def get_location_observations(lat, lng, radius=5, per_page=3, bbox=None):
     """
     Fetches a small batch of recent observations from iNaturalist based on coordinates.
     """
@@ -11,11 +11,20 @@ def get_location_observations(lat, lng, radius=5, per_page=3):
     params = {
         "lat": lat,
         "lng": lng,
-        "radius": radius,        # Search radius in kilometers
-        "per_page": per_page,    # Limit results for easy reading during testing
+        "per_page": per_page,
         "order": "desc",
-        "order_by": "created_at"
+        "order_by": "created_at",
     }
+
+    if bbox:
+        params.update({
+            "swlat": bbox["swlat"],
+            "swlng": bbox["swlng"],
+            "nelat": bbox["nelat"],
+            "nelng": bbox["nelng"],
+        })
+    else:
+        params["radius"] = radius
 
     headers = {
         "User-Agent": "BioGuide/1.0 (https://github.com/mzampino1/bio-guide)"

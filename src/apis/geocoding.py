@@ -2,6 +2,13 @@ import requests
 
 OSM_URL = "https://nominatim.openstreetmap.org/search"
 
+PARK_TYPES = {"park", "nature_reserve", "garden", "forest", "recreation_ground"}
+
+def is_park(result):
+    place_type = (result.get("type") or "").lower()
+    place_class = (result.get("class") or "").lower()
+    return place_type in PARK_TYPES or place_class in PARK_TYPES
+
 def get_coordinates(location_string):
     """
     Converts a location string into (latitude, longitude)

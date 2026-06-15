@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from requests import HTTPError
-from src.apis.geocoding import get_coordinates
+from src.apis.geocoding import get_coordinates, is_park
 
 # Mock data simulating a successful OpenStreetMap response for "Central Park"
 MOCK_OSM_SUCCESS = [
@@ -11,6 +11,11 @@ MOCK_OSM_SUCCESS = [
         "display_name": "Central Park, New York, USA"
     }
 ]
+
+def test_is_park_detects_park_like_results():
+    assert is_park({"type": "park", "class": "leisure"}) is True
+    assert is_park({"type": "nature_reserve", "class": "boundary"}) is True
+    assert is_park({"type": "city", "class": "place"}) is False
 
 @patch('src.apis.geocoding.requests.get')
 def test_get_coordinates_success(mock_get):

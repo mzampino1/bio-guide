@@ -51,3 +51,47 @@ def test_get_location_observations_failure(mock_get):
     
     # Assert
     assert result is None
+
+@patch('src.apis.inat_requests.requests.get')
+def test_get_location_observations_uses_radius_for_regular_locations(mock_get):
+    """
+    Non-park searches should keep the point + radius query path.
+    """
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"results": []}
+
+    get_location_observations(40.7851, -73.9683, radius=2, per_page=3)
+
+    _, kwargs = mock_get.call_args
+    params = kwargs["params"]
+
+    assert params["lat"] == 40.7851
+    assert params["lng"] == -73.9683
+    assert params["radius"] == 2
+    assert "swlat" not in params
+
+@patch('src.apis.inat_requests.requests.get')
+def test_get_location_observations_uses_bbox_for_park_queries(mock_get):
+    """
+    Park searches should switch to a bounding-box query instead of a point radius.
+    """
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"results": []}
+
+    bbox = {
+        "swlat": 40.70,
+        "swlng": -74.00,
+        "nelat": 40.90,
+        "nelng": -73.80,
+    }
+
+    get_location_observations(40.7851, -73.9683, bbox=bbox, per_page=5)
+
+    _, kwargs = mock_get.call_args
+    params = kwargs["params"]
+
+    assert params["swlat"] == bbox["swlat"]
+    assert params["swlng"] == bbox["swlng"]
+    assert params["nelat"] == bbox["nelat"]
+    assert params["nelng"] == bbox["nelng"]
+    assert "radius" not in params
