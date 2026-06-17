@@ -2,7 +2,7 @@ from unittest.mock import patch
 from requests.exceptions import HTTPError
 from src.apis.inat_requests import get_location_observations
 
-# MOCK_API_RESPONSE represents exactly what a single page from iNaturalist looks like
+# MOCK_API_RESPONSE represents a single page from iNaturalist
 MOCK_API_RESPONSE = {
     "total_results": 1,
     "results": [
@@ -93,7 +93,7 @@ def test_get_location_observations_uses_bbox_for_park_queries(mock_get):
     assert "radius" not in params
 
 
-@patch('src.apis.inat_requests.time.sleep')  # Mock sleep so your unit tests execute instantly
+@patch('src.apis.inat_requests.time.sleep')  # Mock sleep so unit tests execute instantly
 @patch('src.apis.inat_requests.requests.get')
 def test_get_location_observations_pagination_limit(mock_get, mock_sleep):
     """
