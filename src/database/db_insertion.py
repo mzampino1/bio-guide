@@ -1,6 +1,6 @@
 import sqlite3
 
-DB_NAME = "bioguide.db"
+DB_NAME = r"tmp\bioguide.db"
 
 def reset_db():
     """

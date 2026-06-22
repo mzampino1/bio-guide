@@ -4,6 +4,8 @@ from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
 
+DB_NAME = r"tmp\bioguide.db"
+
 def run_report_pipeline():
     """
     Interactively accepts a single location from the terminal, resolves its
@@ -86,7 +88,7 @@ def run_report_pipeline():
     insert_data(observations)
     # Print representation of database
     print("\n\nDatabase contents:")
-    conn = sqlite3.connect("bioguide.db")
+    conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute(
         """

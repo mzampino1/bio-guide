@@ -28,7 +28,7 @@ def test_reset_db_drops_tables(mock_connect):
     reset_db()
 
     # Check that connection targets the correct file
-    mock_connect.assert_called_with("bioguide.db")
+    mock_connect.assert_called_with(r"tmp\bioguide.db")
     
     # Verify it attempted to drop both tables
     assert mock_cursor.execute.call_count == 2
