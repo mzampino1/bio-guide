@@ -3,7 +3,7 @@ import sqlite3
 from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
-from processing.species_abundance import rank_species
+from processing.species_abundance import rank_species, rank_relative_abundance
 
 DB_NAME = r"tmp\bioguide.db"
 
@@ -109,6 +109,12 @@ def run_report_pipeline():
     for species in ranked_species:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
     
+    # Display relative abundance of the top 10 species
+    print("\n\nRelative Abundance:")
+    relative_abundance = rank_relative_abundance(cursor)
+    for species in relative_abundance:
+        print(f"{species['common_name']} ({species['scientific_name']}): {species['percentage']}%")
+
     conn.close()
 
 if __name__ == "__main__":
