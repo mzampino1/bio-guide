@@ -3,6 +3,7 @@ import sqlite3
 from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
+from processing.species_abundance import rank_species
 
 DB_NAME = r"tmp\bioguide.db"
 
@@ -100,7 +101,16 @@ def run_report_pipeline():
     rows = cursor.fetchall()
     for row in rows:
         print(row)
+
+    # Display top 10 most common species
+    print("\n\nRanked Species:")
+    cursor = conn.cursor()
+    ranked_species = rank_species(cursor)
+    for species in ranked_species:
+        print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
+    
     conn.close()
 
 if __name__ == "__main__":
     run_report_pipeline()
+    
