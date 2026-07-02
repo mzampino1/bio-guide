@@ -1,5 +1,5 @@
 import sqlite3
-from src.processing.observation_trends import (
+from src.processing.observation_analytics import (
     get_monthly_activity_trends, 
     find_biodiversity_hotspots, 
     get_peak_month_for_species

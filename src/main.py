@@ -4,7 +4,7 @@ from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
 from processing.species_abundance import rank_species, rank_relative_abundance
-from processing.observation_trends import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
+from processing.observation_analytics import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
 
 DB_NAME = r"tmp\bioguide.db"
 
