@@ -4,6 +4,7 @@ from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
 from processing.species_abundance import rank_species, rank_relative_abundance
+from processing.observation_trends import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
 
 DB_NAME = r"tmp\bioguide.db"
 
@@ -97,7 +98,7 @@ def run_report_pipeline():
         FROM observations 
         JOIN species ON observations.taxon_id = species.id
         """
-        )
+    )
     rows = cursor.fetchall()
     for row in rows:
         print(row)
@@ -108,6 +109,8 @@ def run_report_pipeline():
     ranked_species = rank_species(cursor)
     for species in ranked_species:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
+        image_link = species.get("image_url", "No image available")
+        print(f"   Image: {image_link}")
     
     # Display relative abundance of the top 10 species
     print("\n\nRelative Abundance:")
@@ -115,8 +118,26 @@ def run_report_pipeline():
     for species in relative_abundance:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['percentage']}%")
 
+    # Display monthly activity trends
+    print("\n\nMonthly Activity Trends:")
+    monthly_trends = get_monthly_activity_trends(cursor)
+    for trend in monthly_trends:
+        print(f"{trend['month_name']}: {trend['sightings']} sightings (Species Richness: {trend['species_richness']})")
+
+    # Display biodiversity hotspots
+    print("\n\nBiodiversity Hotspots:")
+    hotspots = find_biodiversity_hotspots(cursor)
+    for spot in hotspots:
+        print(f"Grid [{spot['grid_latitude']}, {spot['grid_longitude']}]: {spot['sightings']} sightings, Richness: {spot['species_richness']}")
+
+    # Display seasonal peak for the top ranked species
+    print("\n\nSpecies Seasonality Peak:")
+    for species in ranked_species:
+        peak = get_peak_month_for_species(cursor, species["taxon_id"])
+        if peak:
+            print(f"{species['common_name']} peak month: {peak['month_name']} with {peak['sightings_in_peak_month']} sightings")
+
     conn.close()
 
 if __name__ == "__main__":
     run_report_pipeline()
-    

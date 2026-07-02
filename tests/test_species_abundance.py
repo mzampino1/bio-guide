@@ -1,7 +1,7 @@
 import sqlite3
 from src.processing.species_abundance import rank_species, rank_relative_abundance
 
-# Mock species records for seeding our temporary test database environment
+# Mock species records for seeding temporary test database environment
 MOCK_SPECIES_ROWS = [
     (5001, "Acer rubrum", "Red Maple", "http://example.com/maple.jpg"),
     (5002, "Cyanocitta cristata", "Blue Jay", "http://example.com/bluejay.jpg"),

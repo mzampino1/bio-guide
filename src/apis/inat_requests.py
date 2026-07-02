@@ -6,16 +6,16 @@ BASE_URL = "https://api.inaturalist.org/v1/observations"
 
 def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=5000):
     """
-    Fetches a small batch of recent observations from iNaturalist based on coordinates.
+    Fetches recent observations (previous year) from iNaturalist based on coordinates.
     """
     
-    one_month_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    one_year_ago = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
 
     params = {
         "per_page": 200,
         "order": "desc",
         "order_by": "created_at",
-        "d1": one_month_ago
+        "d1": one_year_ago
     }
 
     if bbox:
