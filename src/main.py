@@ -3,7 +3,7 @@ import sqlite3
 from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
-from processing.species_abundance import rank_species, rank_relative_abundance
+from processing.species_abundance import rank_species_with_grouping, rank_relative_abundance
 from processing.observation_analytics import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
 
 DB_NAME = r"tmp\bioguide.db"
@@ -18,6 +18,9 @@ def run_report_pipeline():
     init_db()
     
     location = input("Enter a location for the biodiversity report: ").strip()
+    filter = input("Would you like to see top 10 'plants', 'animals', or leave blank for all? ").strip().lower()
+    if filter not in ["plants", "animals"]:
+        filter = None
     
     if not location:
         print("Error: Location input cannot be empty.")
@@ -106,7 +109,7 @@ def run_report_pipeline():
     # Display top 10 most common species
     print("\n\nRanked Species:")
     cursor = conn.cursor()
-    ranked_species = rank_species(cursor)
+    ranked_species = rank_species_with_grouping(cursor, group=filter)
     for species in ranked_species:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
         image_link = species.get("image_url", "No image available")

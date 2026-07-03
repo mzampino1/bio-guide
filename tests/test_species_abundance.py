@@ -1,11 +1,11 @@
 import sqlite3
-from src.processing.species_abundance import rank_species, rank_relative_abundance
+from src.processing.species_abundance import rank_species_with_grouping, rank_relative_abundance
 
-# Mock species records for seeding temporary test database environment
+# Mock species records including the new iconic_taxon_name values
 MOCK_SPECIES_ROWS = [
-    (5001, "Acer rubrum", "Red Maple", "http://example.com/maple.jpg"),
-    (5002, "Cyanocitta cristata", "Blue Jay", "http://example.com/bluejay.jpg"),
-    (5003, "Taraxacum officinale", None, "http://example.com/dandelion.jpg")  # None triggers COALESCE fallback
+    (5001, "Acer rubrum", "Red Maple", "Plantae", "http://example.com/maple.jpg"),
+    (5002, "Cyanocitta cristata", "Blue Jay", "Aves", "http://example.com/bluejay.jpg"),
+    (5003, "Taraxacum officinale", None, "Plantae", "http://example.com/dandelion.jpg")  # None triggers COALESCE fallback
 ]
 
 # Mock observations providing 3 sightings for Maple, 2 for Blue Jay, and 1 for Dandelion
@@ -26,12 +26,13 @@ def create_test_db():
     conn = sqlite3.connect(":memory:")
     cursor = conn.cursor()
     
-    # Mirror tables from db_insertion.py
+    # Mirror updated tables from db_insertion.py
     cursor.execute('''
         CREATE TABLE species (
             id INTEGER PRIMARY KEY,
             scientific_name TEXT,
             common_name TEXT,
+            iconic_taxon_name TEXT,
             image_url TEXT
         )
     ''')
@@ -45,7 +46,7 @@ def create_test_db():
         )
     ''')
     
-    cursor.executemany("INSERT INTO species VALUES (?, ?, ?, ?)", MOCK_SPECIES_ROWS)
+    cursor.executemany("INSERT INTO species VALUES (?, ?, ?, ?, ?)", MOCK_SPECIES_ROWS)
     cursor.executemany("INSERT INTO observations VALUES (?, ?, ?, ?, ?)", MOCK_OBSERVATION_ROWS)
     conn.commit()
     
@@ -54,12 +55,12 @@ def create_test_db():
 
 def test_rank_species_sorting_and_counts():
     """
-    Verify that rank_species effectively counts observation volumes and
-    sorts them in strict descending order.
+    Verify that rank_species_with_grouping effectively counts observation volumes and
+    sorts them in strict descending order when no group filter is provided.
     """
     conn, cursor = create_test_db()
 
-    results = rank_species(cursor, limit=10)
+    results = rank_species_with_grouping(cursor, limit=10)
 
     assert isinstance(results, list)
     assert len(results) == 3
@@ -82,7 +83,7 @@ def test_rank_species_coalesce_fallback():
     are successfully caught by COALESCE and replaced with 'Unknown'.
     """
     conn, cursor = create_test_db()
-    results = rank_species(cursor, limit=10)
+    results = rank_species_with_grouping(cursor, limit=10)
 
     # Locate the dandelion row (ID 5003) where common_name was inserted as None
     dandelion = next(row for row in results if row["taxon_id"] == 5003)
@@ -101,12 +102,48 @@ def test_rank_species_respects_limit_parameter():
     conn, cursor = create_test_db()
 
     # Request exclusively the single most common item
-    results = rank_species(cursor, limit=1)
+    results = rank_species_with_grouping(cursor, limit=1)
 
     assert len(results) == 1
     assert results[0]["taxon_id"] == 5001  # Should safely match the dominant Maple record
 
     conn.close()
+
+
+def test_rank_species_filter_plants():
+    """
+    Verify that specifying group='plants' filters out non-plant iconic taxa.
+    """
+    conn, cursor = create_test_db()
+
+    # Request plants only
+    results = rank_species_with_grouping(cursor, limit=10, group="plants")
+
+    assert len(results) == 2
+    # Should only contain Red Maple and Dandelion
+    taxon_ids = [r["taxon_id"] for r in results]
+    assert 5001 in taxon_ids
+    assert 5003 in taxon_ids
+    assert 5002 not in taxon_ids  # Blue Jay excluded
+
+    conn.close()
+
+
+def test_rank_species_filter_animals():
+    """
+    Verify that specifying group='animals' excludes plants, fungi, and chromista.
+    """
+    conn, cursor = create_test_db()
+
+    # Request animals only
+    results = rank_species_with_grouping(cursor, limit=10, group="animals")
+
+    assert len(results) == 1
+    # Should only contain Blue Jay
+    assert results[0]["taxon_id"] == 5002
+
+    conn.close()
+
 
 def test_rank_relative_abundance_calculations():
     """

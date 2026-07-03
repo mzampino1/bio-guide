@@ -1,5 +1,5 @@
 
-def rank_species(cursor, limit=10):
+def rank_species_with_grouping(cursor, limit=10, group=None):
     """Ranks species by observation count (Finds most common species)."""
     query = """
         SELECT 
@@ -10,10 +10,18 @@ def rank_species(cursor, limit=10):
             COUNT(o.id) as total_sightings
         FROM observations o
         JOIN species s ON o.taxon_id = s.id
+    """
+    if group == "plants":
+        query += " WHERE s.iconic_taxon_name = 'Plantae'"
+    elif group == "animals":
+        query += " WHERE s.iconic_taxon_name NOT IN ('Plantae', 'Fungi', 'Chromista')"
+    
+    query += """
         GROUP BY o.taxon_id
         ORDER BY total_sightings DESC
         LIMIT ?;
     """
+
     cursor.execute(query, (limit,))
     rows = cursor.fetchall()
     return [

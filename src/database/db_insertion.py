@@ -27,6 +27,7 @@ def init_db():
             id INTEGER PRIMARY KEY,
             scientific_name TEXT,
             common_name TEXT,
+            iconic_taxon_name TEXT,
             image_url TEXT
         )
     ''')
@@ -58,14 +59,15 @@ def insert_data(observations):
         # 1. Insert into species table
         if taxon_id:
             cursor.execute('''
-                INSERT OR IGNORE INTO species (id, scientific_name, common_name, image_url)
-                VALUES (?, ?, ?, ?)
+                INSERT OR IGNORE INTO species (id, scientific_name, common_name, image_url, iconic_taxon_name)
+                VALUES (?, ?, ?, ?, ?)
             ''', (
                 taxon_id,
                 taxon.get("name"),
                 taxon.get("preferred_common_name"),
                 # Extract image URL safely
-                taxon.get("default_photo", {}).get("medium_url") if taxon.get("default_photo") else None
+                taxon.get("default_photo", {}).get("medium_url") if taxon.get("default_photo") else None,
+                taxon.get("iconic_taxon_name") if taxon.get("iconic_taxon_name") else None
                 )
             )
 
