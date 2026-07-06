@@ -18,7 +18,7 @@ def run_report_pipeline():
     init_db()
     
     location = input("Enter a location for the biodiversity report: ").strip()
-    filter = input("Would you like to see top 10 'plants', 'animals', or leave blank for all? ").strip().lower()
+    filter = input("Would you like to see top 10 'plants', 'animals', or leave blank for overall top 10? ").strip().lower()
     if filter not in ["plants", "animals"]:
         filter = None
     
