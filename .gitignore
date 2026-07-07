@@ -19,3 +19,7 @@ venv/
 # Editor / OS
 .vscode/
 .DS_Store
+
+# Temporary/Output Files
+tmp/
+output/
