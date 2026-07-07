@@ -29,12 +29,13 @@ def get_coordinates(location_string):
         data = response.json()
         
         if data:
+            found_name = data[0].get("name", "Unknown")
             lat = float(data[0]["lat"])
             lng = float(data[0]["lon"])
             # Return coordinates and the raw dictionary result
-            return lat, lng, data[0]
+            return found_name, lat, lng, data[0]
             
     except Exception as e:
         print(f"Geocoding error: {e}")
         
-    return None, None, None
+    return 'Name of location unknown', None, None, None

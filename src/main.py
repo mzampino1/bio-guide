@@ -5,6 +5,7 @@ from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
 from processing.species_abundance import rank_species_with_grouping, rank_relative_abundance
 from processing.observation_analytics import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
+from guide.pdf_generation import build_pdf_guide
 
 DB_NAME = r"tmp\bioguide.db"
 
@@ -18,16 +19,13 @@ def run_report_pipeline():
     init_db()
     
     location = input("Enter a location for the biodiversity report: ").strip()
-    filter = input("Would you like to see top 10 'plants', 'animals', or leave blank for overall top 10? ").strip().lower()
-    if filter not in ["plants", "animals"]:
-        filter = None
     
     if not location:
         print("Error: Location input cannot be empty.")
         return
 
     print(f"\n[1/3] Resolving location details for '{location}'...")
-    lat, lng, raw_result = get_coordinates(location)
+    found_name, lat, lng, raw_result = get_coordinates(location)
     
     if lat is None or lng is None:
         print(f"Error: Could not find map coordinates for '{location}'.")
@@ -56,7 +54,7 @@ def run_report_pipeline():
         return
         
     print(f"Success: Retrieved {len(observations)} local observations!\n")
-    print(f"Staging Biodiversity Report Data for '{location}'")
+    print(f"Staging Biodiversity Report Data for {found_name}...")
     
     # Iterate through the flattened list of observations
     for obs in observations:
@@ -88,9 +86,8 @@ def run_report_pipeline():
         print(f"Staged - Obs #{obs_id}: {common_name} ({scientific_name}) - Seen: {observed_on}")
         
     print(f"\n[3/3] Saving {len(observations)} records to database...")
-    
-    # 2. Pass the enriched list to your database script
     insert_data(observations)
+    
     # Print representation of database
     print("\n\nDatabase contents:")
     conn = sqlite3.connect(DB_NAME)
@@ -106,39 +103,56 @@ def run_report_pipeline():
     for row in rows:
         print(row)
 
-    # Display top 10 most common species
-    print("\n\nRanked Species:")
-    cursor = conn.cursor()
-    ranked_species = rank_species_with_grouping(cursor, group=filter)
-    for species in ranked_species:
+    # Data extraction
+    top_overall = rank_species_with_grouping(cursor, limit=10, group=None)
+    top_plants = rank_species_with_grouping(cursor, limit=10, group="plants")
+    top_animals = rank_species_with_grouping(cursor, limit=10, group="animals")
+    
+    relative_abundance = rank_relative_abundance(cursor)
+    monthly_trends = get_monthly_activity_trends(cursor)
+    hotspots = find_biodiversity_hotspots(cursor)
+
+    # Display top 10 most common species (Overall) in terminal
+    print("\n\nRanked Species (Overall):")
+    for species in top_overall:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
         image_link = species.get("image_url", "No image available")
         print(f"   Image: {image_link}")
     
     # Display relative abundance of the top 10 species
     print("\n\nRelative Abundance:")
-    relative_abundance = rank_relative_abundance(cursor)
     for species in relative_abundance:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['percentage']}%")
 
     # Display monthly activity trends
     print("\n\nMonthly Activity Trends:")
-    monthly_trends = get_monthly_activity_trends(cursor)
     for trend in monthly_trends:
         print(f"{trend['month_name']}: {trend['sightings']} sightings (Species Richness: {trend['species_richness']})")
 
     # Display biodiversity hotspots
     print("\n\nBiodiversity Hotspots:")
-    hotspots = find_biodiversity_hotspots(cursor)
     for spot in hotspots:
         print(f"Grid [{spot['grid_latitude']}, {spot['grid_longitude']}]: {spot['sightings']} sightings, Richness: {spot['species_richness']}")
 
     # Display seasonal peak for the top ranked species
     print("\n\nSpecies Seasonality Peak:")
-    for species in ranked_species:
+    for species in top_overall:
         peak = get_peak_month_for_species(cursor, species["taxon_id"])
         if peak:
             print(f"{species['common_name']} peak month: {peak['month_name']} with {peak['sightings_in_peak_month']} sightings")
+
+    # PDF rendering
+    print("\n\n[4/4] Activating document rendering engine...")
+    build_pdf_guide(
+        location=found_name,
+        top_overall=top_overall,
+        top_plants=top_plants,
+        top_animals=top_animals,
+        relative_abundance=relative_abundance,
+        monthly_trends=monthly_trends,
+        hotspots=hotspots,
+        cursor=cursor
+    )
 
     conn.close()
 
