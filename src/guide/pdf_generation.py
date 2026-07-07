@@ -70,6 +70,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     all_distinct_species = {s['taxon_id']: s for s in (top_overall + top_plants + top_animals)}.values()
     generate_visual_assets(monthly_trends, all_distinct_species, hotspots)
     
+    os.makedirs("output", exist_ok=True)
     pdf_filename = f"output/{location.lower().replace(' ', '_')}_biodiversity_guide.pdf"
     doc = SimpleDocTemplate(pdf_filename, pagesize=letter,
                             rightMargin=0.5*inch, leftMargin=0.5*inch,
