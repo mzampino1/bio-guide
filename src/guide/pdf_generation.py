@@ -95,12 +95,35 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(Paragraph("Data Gathered via iNaturalist", subtitle_style))
     
     if os.path.exists("tmp/location_map.png"):
-        map_img = Image("tmp/location_map.png", width=7.2*inch, height=3.2*inch)
+        from PIL import Image as PILImgReader
+        with PILImgReader.open("tmp/location_map.png") as img:
+            img_w, img_h = img.size
+        map_aspect = img_h / img_w
+        
+        # Max dimensions allowed on the page (7.5 width, 5.5 height)
+        max_width = 7.5 * inch
+        max_height = 5.5 * inch
+        
+        # Calculate ideal dimensions maintaining true aspect ratio
+        calc_height = max_width * map_aspect
+        
+        if calc_height > max_height:
+            # Map is vertically tall, constrain by height
+            final_h = max_height
+            final_w = max_height / map_aspect
+        else:
+            # Map is horizontally wide, constrain by width
+            final_w = max_width
+            final_h = calc_height
+            
+        map_img = Image("tmp/location_map.png", width=final_w, height=final_h)
+        map_img.hAlign = 'CENTER'
         story.append(map_img)
         story.append(Spacer(1, 0.1*inch))
         
     if os.path.exists("tmp/trend_chart.png"):
         chart_img = Image("tmp/trend_chart.png", width=7.2*inch, height=2.5*inch)
+        chart_img.hAlign = 'CENTER'
         story.append(chart_img)
         story.append(Spacer(1, 0.15*inch))
     
@@ -126,6 +149,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E0E0E0")),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F9F9F9")]),
     ]))
+    abundance_table.hAlign = 'CENTER'
     story.append(abundance_table)
     
     # ==========================================
