@@ -2,12 +2,14 @@ import requests
 
 OSM_URL = "https://nominatim.openstreetmap.org/search"
 
-PARK_TYPES = {"park", "nature_reserve", "garden", "forest", "recreation_ground"}
+PARK_TYPES = {"park", "nature_reserve", "garden", "forest", "recreation_ground", "protected_area", "wilderness"}
 
 def is_park(result):
     place_type = (result.get("type") or "").lower()
     place_class = (result.get("class") or "").lower()
-    return place_type in PARK_TYPES or place_class in PARK_TYPES
+    
+    # Checks if any keyword from PARK_TYPES is a substring of the type or class
+    return any(pt in place_type or pt in place_class for pt in PARK_TYPES)
 
 def get_coordinates(location_string):
     """
