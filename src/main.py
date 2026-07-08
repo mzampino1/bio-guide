@@ -4,7 +4,7 @@ from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data
 from processing.species_abundance import rank_species_with_grouping, rank_relative_abundance
-from processing.observation_analytics import get_monthly_activity_trends, find_biodiversity_hotspots, get_peak_month_for_species
+from processing.observation_analytics import get_monthly_activity_trends, get_peak_month_for_species  # Cleaned up unused import
 from guide.pdf_generation import build_pdf_guide
 
 DB_NAME = r"tmp\bioguide.db"
@@ -110,7 +110,6 @@ def run_report_pipeline():
     
     relative_abundance = rank_relative_abundance(cursor)
     monthly_trends = get_monthly_activity_trends(cursor)
-    hotspots = find_biodiversity_hotspots(cursor)
 
     # Display top 10 most common species (Overall) in terminal
     print("\n\nRanked Species (Overall):")
@@ -129,11 +128,6 @@ def run_report_pipeline():
     for trend in monthly_trends:
         print(f"{trend['month_name']}: {trend['sightings']} sightings (Species Richness: {trend['species_richness']})")
 
-    # Display biodiversity hotspots
-    print("\n\nBiodiversity Hotspots:")
-    for spot in hotspots:
-        print(f"Grid [{spot['grid_latitude']}, {spot['grid_longitude']}]: {spot['sightings']} sightings, Richness: {spot['species_richness']}")
-
     # Display seasonal peak for the top ranked species
     print("\n\nSpecies Seasonality Peak:")
     for species in top_overall:
@@ -150,7 +144,7 @@ def run_report_pipeline():
         top_animals=top_animals,
         relative_abundance=relative_abundance,
         monthly_trends=monthly_trends,
-        hotspots=hotspots,
+        observations=observations,
         cursor=cursor
     )
 

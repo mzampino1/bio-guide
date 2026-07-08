@@ -62,13 +62,14 @@ def _build_species_grid(species_list, cursor, body_style):
     return catalog_table
 
 
-def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abundance, monthly_trends, hotspots, cursor):
+def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abundance, monthly_trends, observations, cursor):
     """
     Compiles complete biodiversity metrics into a multi-page, publication-quality PDF.
     """
     # Consolidate all species variants to ensure assets download completely
     all_distinct_species = {s['taxon_id']: s for s in (top_overall + top_plants + top_animals)}.values()
-    generate_visual_assets(monthly_trends, all_distinct_species, hotspots)
+    
+    generate_visual_assets(monthly_trends, all_distinct_species, observations)
     
     os.makedirs("output", exist_ok=True)
     pdf_filename = f"output/{location.lower().replace(' ', '_')}_biodiversity_guide.pdf"

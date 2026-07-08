@@ -32,37 +32,6 @@ def get_monthly_activity_trends(cursor):
         for r in rows
     ]
 
-
-def find_biodiversity_hotspots(cursor, limit=5):
-    """
-    Groups coordinate points into 0.001-degree geographical grid cells (~111m x 111m area).
-    Calculates Species Richness (the number of different unique species) in each cell
-    to pinpoint regional biodiversity hotspots.
-    """
-    query = """
-        SELECT 
-            ROUND(latitude, 3) as grid_lat,
-            ROUND(longitude, 3) as grid_lng,
-            COUNT(id) as total_sightings,
-            COUNT(DISTINCT taxon_id) as species_richness
-        FROM observations
-        GROUP BY grid_lat, grid_lng
-        ORDER BY species_richness DESC, total_sightings DESC
-        LIMIT ?;
-    """
-    cursor.execute(query, (limit,))
-    rows = cursor.fetchall()
-    
-    return [
-        {
-            "grid_latitude": r[0],
-            "grid_longitude": r[1],
-            "sightings": r[2],
-            "species_richness": r[3]
-        }
-        for r in rows
-    ]
-
 def get_peak_month_for_species(cursor, taxon_id):
     """
     Identifies the calendar month when a specific species is most 
