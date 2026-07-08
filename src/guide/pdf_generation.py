@@ -91,7 +91,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     # PAGE 1: TITLE, VISUAL MAPS & TRENDS
     # ==========================================
     story.append(Paragraph(f"Biodiversity Field Guide: {location}", title_style))
-    story.append(Paragraph("Automated Ecological Assessment Pipeline via iNaturalist Networks", subtitle_style))
+    story.append(Paragraph("Data Gathered via iNaturalist", subtitle_style))
     
     map_img = Image("tmp/location_map.png", width=3.5*inch, height=1.6*inch) if os.path.exists("tmp/location_map.png") else ""
     chart_img = Image("tmp/trend_chart.png", width=3.5*inch, height=1.6*inch) if os.path.exists("tmp/trend_chart.png") else ""
