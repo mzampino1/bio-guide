@@ -104,21 +104,21 @@ def run_report_pipeline():
         print(row)
 
     # Data extraction
-    top_overall = rank_species_with_grouping(cursor, limit=10, group=None)
-    top_plants = rank_species_with_grouping(cursor, limit=10, group="plants")
-    top_animals = rank_species_with_grouping(cursor, limit=10, group="animals")
+    top_overall = rank_species_with_grouping(cursor, limit=20, group=None)
+    top_plants = rank_species_with_grouping(cursor, limit=20, group="plants")
+    top_animals = rank_species_with_grouping(cursor, limit=20, group="animals")
     
-    relative_abundance = rank_relative_abundance(cursor)
+    relative_abundance = rank_relative_abundance(cursor, limit=20)
     monthly_trends = get_monthly_activity_trends(cursor)
 
-    # Display top 10 most common species (Overall) in terminal
+    # Display top 20 most common species (Overall) in terminal
     print("\n\nRanked Species (Overall):")
     for species in top_overall:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
         image_link = species.get("image_url", "No image available")
         print(f"   Image: {image_link}")
     
-    # Display relative abundance of the top 10 species
+    # Display relative abundance of the top 20 species
     print("\n\nRelative Abundance:")
     for species in relative_abundance:
         print(f"{species['common_name']} ({species['scientific_name']}): {species['percentage']}%")

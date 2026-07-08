@@ -22,7 +22,7 @@ def _build_species_grid(species_list, cursor, body_style):
         if not os.path.exists(img_path):
             img_path = "tmp/species_placeholder.png"
             
-        species_photo = Image(img_path, width=1.3*inch, height=1.0*inch)
+        species_photo = Image(img_path, width=0.9*inch, height=0.7*inch)
         
         # Pull peak metrics from database on-the-fly
         peak = get_peak_month_for_species(cursor, taxon_id)
@@ -35,11 +35,11 @@ def _build_species_grid(species_list, cursor, body_style):
         """
         species_details = Paragraph(card_text, body_style)
         
-        card_table = Table([[species_photo, species_details]], colWidths=[1.4*inch, 2.1*inch])
+        card_table = Table([[species_photo, species_details]], colWidths=[1.0*inch, 2.5*inch])
         card_table.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F9F9F9")),
             ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#E0E0E0")),
-            ('PADDING', (0,0), (-1,-1), 6),
+            ('PADDING', (0,0), (-1,-1), 3),
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
         ]))
         
@@ -55,7 +55,7 @@ def _build_species_grid(species_list, cursor, body_style):
         
     catalog_table = Table(grid_data, colWidths=[3.6*inch, 3.6*inch])
     catalog_table.setStyle(TableStyle([
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
         ('RIGHTPADDING', (0,0), (0,0), 4),
         ('LEFTPADDING', (1,0), (1,-1), 4),
     ]))
@@ -84,7 +84,8 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     title_style = ParagraphStyle('CoverTitle', parent=styles['Heading1'], fontSize=24, leading=28, textColor=PRIMARY_COLOR, alignment=1, spaceAfter=4)
     subtitle_style = ParagraphStyle('CoverSub', parent=styles['Normal'], fontSize=10, leading=14, textColor=colors.HexColor("#757575"), alignment=1, spaceAfter=15)
     section_style = ParagraphStyle('SecHeading', parent=styles['Heading2'], fontSize=14, leading=18, textColor=PRIMARY_COLOR, spaceBefore=12, spaceAfter=8, keepWithNext=True)
-    body_style = ParagraphStyle('RepBody', parent=styles['Normal'], fontSize=9, leading=13, textColor=TEXT_COLOR)
+    
+    body_style = ParagraphStyle('RepBody', parent=styles['Normal'], fontSize=8, leading=11, textColor=TEXT_COLOR)
     
     story = []
     
@@ -127,10 +128,10 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
         story.append(chart_img)
         story.append(Spacer(1, 0.15*inch))
     
-    # Relative Abundance Table Block
-    story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 10)", section_style))
+    # Relative Abundance Table Block (Top 20)
+    story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 20)", section_style))
     abundance_rows = [["Rank", "Species (Common Name / Scientific Name)", "Sightings", "Ecosystem Share"]]
-    for idx, species in enumerate(relative_abundance[:10]):
+    for idx, species in enumerate(relative_abundance[:20]):
         abundance_rows.append([
             str(idx+1),
             f"{species['common_name']} ({species['scientific_name']})",
@@ -143,9 +144,9 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
         ('BACKGROUND', (0,0), (-1,0), PRIMARY_COLOR),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 8.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('FONTSIZE', (0,0), (-1,-1), 8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E0E0E0")),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F9F9F9")]),
     ]))
@@ -153,23 +154,28 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(abundance_table)
     
     # ==========================================
-    # PAGE 2: SPECIES SECTIONS
+    # PAGE 2: OVERALL SPECIES SECTION
     # ==========================================
     story.append(PageBreak())
     
-    # Section A: Top 10 Overall
-    story.append(Paragraph("Top 10 Most Common Overall Species", section_style))
-    story.append(_build_species_grid(top_overall, cursor, body_style))
-    story.append(Spacer(1, 0.15*inch))
+    story.append(Paragraph("Top 20 Most Common Overall Species", section_style))
+    story.append(_build_species_grid(top_overall[:20], cursor, body_style)) # INCREMENTED TO 20
     
-    # Section B: Top 10 Plants
-    story.append(Paragraph("Top 10 Dominant Regional Flora (Plants)", section_style))
-    story.append(_build_species_grid(top_plants, cursor, body_style))
-    story.append(Spacer(1, 0.15*inch))
+    # ==========================================
+    # PAGE 3: PLANTS SECTION
+    # ==========================================
+    story.append(PageBreak())
     
-    # Section C: Top 10 Animals
-    story.append(Paragraph("Top 10 Dominant Regional Fauna (Animals)", section_style))
-    story.append(_build_species_grid(top_animals, cursor, body_style))
+    story.append(Paragraph("Top 20 Dominant Regional Flora (Plants)", section_style))
+    story.append(_build_species_grid(top_plants[:20], cursor, body_style))
+    
+    # ==========================================
+    # PAGE 4: ANIMALS SECTION
+    # ==========================================
+    story.append(PageBreak())
+    
+    story.append(Paragraph("Top 20 Dominant Regional Fauna (Animals)", section_style))
+    story.append(_build_species_grid(top_animals[:20], cursor, body_style))
     
     doc.build(story)
     print(f"\nPDF Generation Complete. File available at: {pdf_filename}")
