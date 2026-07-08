@@ -16,9 +16,9 @@ def generate_visual_assets(monthly_trends, unique_species, observations):
         months = [t['month_name'] for t in monthly_trends]
         sightings = [t['sightings'] for t in monthly_trends]
        
-        fig, ax = plt.subplots(figsize=(6, 2.5))
+        fig, ax = plt.subplots(figsize=(7.2, 2.5))
         ax.bar(months, sightings, color='#2E7D32', edgecolor='#1B5E20', alpha=0.85, width=0.5)
-        ax.set_title("Monthly Wildlife Activity Trends", fontsize=10, fontweight='bold', color='#1B5E20', pad=8)
+        ax.set_title("Monthly Observation Counts", fontsize=10, fontweight='bold', color='#1B5E20', pad=8)
         ax.set_ylabel("Sightings", fontsize=8, color='#424242')
         ax.tick_params(axis='both', labelsize=8, colors='#424242')
         ax.spines['top'].set_visible(False)
@@ -29,27 +29,29 @@ def generate_visual_assets(monthly_trends, unique_species, observations):
         plt.close()
    
     # 2. Raw Sighting Distribution Map
-    if observations: # Check if observations list is populated
-        # Safely extract lat/lng handling both common naming conventions ('latitude' or 'lat')
+    if unique_species:
         lngs = [o.get('longitude') for o in observations]
         lats = [o.get('latitude') for o in observations]
-        
-        # Filter out any accidental None values to prevent matplotlib errors
+       
         coords = [(lng, lat) for lng, lat in zip(lngs, lats) if lng is not None and lat is not None]
-        
+       
         if coords:
             plot_lngs, plot_lats = zip(*coords)
-            
-            fig, ax = plt.subplots(figsize=(6, 2.5))
-            
-            # Plot EVERY observation as a tiny, sharp, electric-cyan marker
-            ax.scatter(plot_lngs, plot_lats, s=6, color='#00E5FF', 
+           
+            fig, ax = plt.subplots(figsize=(7.2, 3.2)) 
+           
+            # Plot observations
+            ax.scatter(plot_lngs, plot_lats, s=6, color='#00E5FF',
                        edgecolor='#005F73', alpha=0.6, linewidths=0.3, zorder=3)
-            
+           
+            ax.set_aspect('equal')
+            ax.margins(0.15)
+           
             try:
-                ctx.add_basemap(ax, crs="EPSG:4326", source=ctx.providers.Esri.WorldImagery, attribution_size=4)
+                ctx.add_basemap(ax, crs="EPSG:4326", source=ctx.providers.Esri.WorldTopoMap, zorder=1, attribution="")
+               
             except Exception as e:
-                print(f"Warning: Could not fetch satellite tiles ({e}).")
+                print(f"Warning: Could not fetch map tiles ({e}).")
                 ax.grid(True, linestyle=':', alpha=0.5)
                 ax.set_facecolor('#FAFAFA')
            

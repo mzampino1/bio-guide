@@ -94,13 +94,15 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(Paragraph(f"Biodiversity Field Guide: {location}", title_style))
     story.append(Paragraph("Data Gathered via iNaturalist", subtitle_style))
     
-    map_img = Image("tmp/location_map.png", width=3.5*inch, height=1.6*inch) if os.path.exists("tmp/location_map.png") else ""
-    chart_img = Image("tmp/trend_chart.png", width=3.5*inch, height=1.6*inch) if os.path.exists("tmp/trend_chart.png") else ""
-    
-    visual_table = Table([[map_img, chart_img]], colWidths=[3.6*inch, 3.6*inch])
-    visual_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('ALIGN', (0,0), (-1,-1), 'CENTER')]))
-    story.append(visual_table)
-    story.append(Spacer(1, 0.15*inch))
+    if os.path.exists("tmp/location_map.png"):
+        map_img = Image("tmp/location_map.png", width=7.2*inch, height=3.2*inch)
+        story.append(map_img)
+        story.append(Spacer(1, 0.1*inch))
+        
+    if os.path.exists("tmp/trend_chart.png"):
+        chart_img = Image("tmp/trend_chart.png", width=7.2*inch, height=2.5*inch)
+        story.append(chart_img)
+        story.append(Spacer(1, 0.15*inch))
     
     # Relative Abundance Table Block
     story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 10)", section_style))
