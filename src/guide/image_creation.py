@@ -21,6 +21,8 @@ def generate_visual_assets(monthly_trends, unique_species, observations):
         ax.set_title("Monthly Observation Counts", fontsize=10, fontweight='bold', color='#1B5E20', pad=8)
         ax.set_ylabel("Sightings", fontsize=8, color='#424242')
         ax.tick_params(axis='both', labelsize=8, colors='#424242')
+        ax.set_xticks(range(len(months)))
+        ax.set_xticklabels(months, rotation=45, ha='right')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         ax.grid(axis='y', linestyle='--', alpha=0.3)

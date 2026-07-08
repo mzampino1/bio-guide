@@ -9,6 +9,47 @@ from reportlab.lib.units import inch
 from guide.image_creation import generate_visual_assets
 from processing.observation_analytics import get_peak_month_for_species
 
+def _crop_image_to_aspect(img_path, target_width, target_height):
+    """
+    Center-crops an image to perfectly match the target aspect ratio
+    so it doesn't get squished or stretched when placed in the PDF grid.
+    """
+    from PIL import Image as PILImage
+    
+    # Skip cropping the placeholder
+    if "placeholder" in img_path:
+        return img_path
+        
+    cropped_path = img_path.replace(".png", "_cropped.png")
+    if os.path.exists(cropped_path):
+        return cropped_path
+        
+    try:
+        with PILImage.open(img_path) as img:
+            img_w, img_h = img.size
+            target_ratio = target_width / target_height
+            img_ratio = img_w / img_h
+            
+            # Crop only if the aspect ratio is noticeably mismatched
+            if abs(img_ratio - target_ratio) > 0.05: 
+                if img_ratio > target_ratio:
+                    # Image is too wide, center-crop the sides
+                    new_w = int(target_ratio * img_h)
+                    left = (img_w - new_w) // 2
+                    img = img.crop((left, 0, left + new_w, img_h))
+                else:
+                    # Image is too tall, center-crop the top and bottom
+                    new_h = int(img_w / target_ratio)
+                    top = (img_h - new_h) // 2
+                    img = img.crop((0, top, img_w, top + new_h))
+                    
+            img.save(cropped_path, "PNG")
+        return cropped_path
+    except Exception:
+        # Fall back to original image if anything goes wrong
+        return img_path
+
+
 def _build_species_grid(species_list, cursor, body_style):
     """
     Helper function to transform a species array into a clean 2-column visual grid layout.
@@ -22,7 +63,9 @@ def _build_species_grid(species_list, cursor, body_style):
         if not os.path.exists(img_path):
             img_path = "tmp/species_placeholder.png"
             
-        species_photo = Image(img_path, width=0.9*inch, height=0.7*inch)
+        # Pre-process the image to fit the 0.9 x 0.7 box without distortion
+        clean_img_path = _crop_image_to_aspect(img_path, 0.9, 0.7)
+        species_photo = Image(clean_img_path, width=0.9*inch, height=0.7*inch)
         
         # Pull peak metrics from database on-the-fly
         peak = get_peak_month_for_species(cursor, taxon_id)
@@ -159,7 +202,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(PageBreak())
     
     story.append(Paragraph("Top 20 Most Common Overall Species", section_style))
-    story.append(_build_species_grid(top_overall[:20], cursor, body_style)) # INCREMENTED TO 20
+    story.append(_build_species_grid(top_overall[:20], cursor, body_style)) 
     
     # ==========================================
     # PAGE 3: PLANTS SECTION
