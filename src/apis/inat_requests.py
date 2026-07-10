@@ -55,7 +55,7 @@ def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10
                 
             all_observations.extend(results)
             
-            # If the server hands back a batch smaller than our requested limit,
+            # If the server hands back a batch smaller than the requested limit,
             # we've reached the absolute end of their record index for this area.
             if len(results) < params["per_page"]:
                 print("Final incomplete page received. Ending search.")
@@ -77,6 +77,7 @@ def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10
         # Only truncate if we have enough records to actually look back a year
         last_year = int(all_observations[-1].get("created_at")[:4])
         balanced_obs = [obs for obs in all_observations if int(obs.get("created_at")[:4]) < last_year]
-        return balanced_obs
+        if len(balanced_obs) > 0:
+            all_observations = balanced_obs
 
     return all_observations
