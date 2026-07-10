@@ -4,18 +4,18 @@ import time
 
 BASE_URL = "https://api.inaturalist.org/v1/observations"
 
-def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=5000):
+def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10000):
     """
-    Fetches recent observations (previous year) from iNaturalist based on coordinates.
+    Fetches recent observations (previous 5 year) from iNaturalist based on coordinates.
     """
     
-    one_year_ago = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
+    five_years_ago = (datetime.now() - timedelta(days=1825)).strftime("%Y-%m-%d")
 
     params = {
         "per_page": 200,
         "order": "desc",
         "order_by": "created_at",
-        "d1": one_year_ago
+        "d1": five_years_ago
     }
 
     if bbox:
@@ -70,5 +70,13 @@ def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=50
             print(f"API Request failed on page {current_page}: {e}")
             break
 
-    # Truncate results cleanly if a final page pushed slightly past the limit
-    return all_observations[:max_observations]
+    # If we stopped short of the absolute end of the record index, truncate to the previous January
+    if len(all_observations) >= max_observations:
+        all_observations = all_observations[:max_observations]
+        
+        # Only truncate if we have enough records to actually look back a year
+        last_year = int(all_observations[-1].get("created_at")[:4])
+        balanced_obs = [obs for obs in all_observations if int(obs.get("created_at")[:4]) < last_year]
+        return balanced_obs
+
+    return all_observations
