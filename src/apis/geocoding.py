@@ -2,7 +2,7 @@ import requests
 
 OSM_URL = "https://nominatim.openstreetmap.org/search"
 
-PARK_TYPES = {"park", "nature_reserve", "garden", "forest", "recreation_ground", "protected_area", "wilderness"}
+PARK_TYPES = {"park", "natural", "nature_reserve", "garden", "forest", "recreation_ground", "protected_area", "wilderness"}
 
 def is_park(result):
     place_type = (result.get("type") or "").lower()
