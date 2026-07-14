@@ -171,10 +171,10 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
         story.append(chart_img)
         story.append(Spacer(1, 0.15*inch))
     
-    # Relative Abundance Table Block (Top 20)
-    story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 20)", section_style))
+    # Relative Abundance Table Block (Top 35)
+    story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 35)", section_style))
     abundance_rows = [["Rank", "Species (Common Name / Scientific Name)", "Sightings", "Ecosystem Share"]]
-    for idx, species in enumerate(relative_abundance[:20]):
+    for idx, species in enumerate(relative_abundance[:35]):
         abundance_rows.append([
             str(idx+1),
             f"{species['common_name']} ({species['scientific_name']})",
@@ -197,15 +197,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(abundance_table)
     
     # ==========================================
-    # PAGE 2: OVERALL SPECIES SECTION
-    # ==========================================
-    story.append(PageBreak())
-    
-    story.append(Paragraph("Top 20 Most Common Overall Species", section_style))
-    story.append(_build_species_grid(top_overall[:20], cursor, body_style)) 
-    
-    # ==========================================
-    # PAGE 3: PLANTS SECTION
+    # PAGE 2: PLANTS SECTION
     # ==========================================
     story.append(PageBreak())
     
@@ -213,7 +205,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     story.append(_build_species_grid(top_plants[:20], cursor, body_style))
     
     # ==========================================
-    # PAGE 4: ANIMALS SECTION
+    # PAGE 3: ANIMALS SECTION
     # ==========================================
     story.append(PageBreak())
     
