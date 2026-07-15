@@ -4,11 +4,12 @@ def get_monthly_activity_trends(cursor):
     Returns a sorted list of months showing when wildlife sightings spike.
     """
     query = """
-        SELECT 
-            strftime('%m', observed_on) as month_num,
+        SELECT
+            SUBSTR(observed_on, 6, 2) as month_num,
             COUNT(id) as total_sightings,
             COUNT(DISTINCT taxon_id) as unique_species_seen
         FROM observations
+        WHERE observed_on IS NOT NULL
         GROUP BY month_num
         ORDER BY month_num ASC;
     """
@@ -34,15 +35,15 @@ def get_monthly_activity_trends(cursor):
 
 def get_peak_month_for_species(cursor, taxon_id):
     """
-    Identifies the calendar month when a specific species is most 
+    Identifies the calendar month when a specific species is most
     frequently observed based on historical database records.
     """
     query = """
-        SELECT 
-            strftime('%m', observed_on) as month_num,
+        SELECT
+            SUBSTR(observed_on, 6, 2) as month_num,
             COUNT(id) as sighting_count
         FROM observations
-        WHERE taxon_id = ?
+        WHERE taxon_id = ? AND observed_on IS NOT NULL
         GROUP BY month_num
         ORDER BY sighting_count DESC
         LIMIT 1;
