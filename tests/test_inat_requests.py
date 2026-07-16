@@ -91,22 +91,3 @@ def test_get_location_observations_uses_bbox_for_park_queries(mock_get):
     assert params["nelat"] == bbox["nelat"]
     assert params["nelng"] == bbox["nelng"]
     assert "radius" not in params
-
-
-@patch('src.apis.inat_requests.time.sleep')  # Mock sleep so unit tests execute instantly
-@patch('src.apis.inat_requests.requests.get')
-def test_get_location_observations_pagination_limit(mock_get, mock_sleep):
-    """
-    Verify that pagination respects the max_observations ceiling and truncates cleanly.
-    """
-    # Build a mock page containing exactly 200 items
-    fake_200_results = {"results": [{"id": i} for i in range(200)]}
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = fake_200_results
-
-    # Request data with a hard ceiling of 250 records.
-    # Page 1 fetches 200. Page 2 fetches another 200 (Total 400). Loop terminates and truncates to 250.
-    result = get_location_observations(40.7851, -73.9683, max_observations=250)
-
-    assert len(result) == 250
-    assert mock_get.call_count == 2

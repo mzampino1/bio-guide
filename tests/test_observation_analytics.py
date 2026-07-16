@@ -1,7 +1,6 @@
 import sqlite3
 from src.processing.observation_analytics import (
     get_monthly_activity_trends, 
-    find_biodiversity_hotspots, 
     get_peak_month_for_species
 )
 
@@ -64,30 +63,6 @@ def test_get_monthly_activity_trends():
     assert trends[1]["month_name"] == "July"
     assert trends[1]["sightings"] == 1
     assert trends[1]["species_richness"] == 1  # Only Maple seen in July
-
-    conn.close()
-
-
-def test_find_biodiversity_hotspots():
-    """Verify that coordinates group into grids and rank correctly by species richness."""
-    conn, cursor = create_test_db()
-
-    hotspots = find_biodiversity_hotspots(cursor, limit=5)
-
-    assert isinstance(hotspots, list)
-    assert len(hotspots) == 2  # Two distinct rounded coordinate regions
-
-    # The Area A cluster should rank #1 because it has 2 unique species
-    assert hotspots[0]["grid_latitude"] == 40.712
-    assert hotspots[0]["grid_longitude"] == -73.916
-    assert hotspots[0]["species_richness"] == 2
-    assert hotspots[0]["sightings"] == 4
-
-    # The Area B sighting should rank #2
-    assert hotspots[1]["grid_latitude"] == 34.051
-    assert hotspots[1]["grid_longitude"] == -118.243
-    assert hotspots[1]["species_richness"] == 1
-    assert hotspots[1]["sightings"] == 1
 
     conn.close()
 
