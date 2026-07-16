@@ -136,7 +136,7 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
     # PAGE 1: TITLE, VISUAL MAPS & TRENDS
     # ==========================================
     story.append(Paragraph(f"Biodiversity Field Guide: {location}", title_style))
-    story.append(Paragraph("Data Gathered via iNaturalist", subtitle_style))
+    story.append(Paragraph("Data Gathered via iNaturalist (Most recent 10,000 observations)", subtitle_style))
     
     if os.path.exists("tmp/location_map.png"):
         from PIL import Image as PILImgReader
