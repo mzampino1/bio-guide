@@ -1,7 +1,8 @@
 # bio-guide
 
 Given a location entered by the user, this project uses iNaturalist data (most recent 10,000 observations)
-to create a PDF biodiversity guide.
+to create a PDF biodiversity guide \
+(See sample guides in `examples/` folder).
 
 ## Sections of Guide:
 - Wildlife Sighting Distribution
@@ -12,8 +13,6 @@ to create a PDF biodiversity guide.
   - Table showing the top 35 most observed species, along with the number of sightings and the percentage of total observations for each species
 - Top 20 Dominant Regional Flora/Fauna (Plants/Animals)
   - Tables showing top 20 plants and top 20 animals with pictures of each species, along with the month in which that species was observed most frequently
-
-## See sample guides in `examples/` folder
 
 ## Prerequisites:
 Python 3.14+
@@ -32,9 +31,9 @@ Python 3.14+
    ```bash
    python3 src/main.py
    ```
-   *When prompted, enter the location for your biodiversity guide* \
+   *When prompted, enter the location for your biodiversity guide.* \
    The program will take up to about 2-3 minutes to create your guide. \
-   When finished, the guide will be in `output/`
+   When finished, the guide will be in `output/`.
 
 ## Tests:
 In order to run the project's test suite, follow these steps:
