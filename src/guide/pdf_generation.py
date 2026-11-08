@@ -107,7 +107,7 @@ def _build_species_grid(species_list, cursor, body_style):
 
 def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abundance, monthly_trends, observations, cursor):
     """
-    Compiles complete biodiversity metrics into a multi-page, publication-quality PDF.
+    Compiles complete biodiversity metrics into a multi-page PDF.
     """
     # Consolidate all species variants to ensure assets download completely
     all_distinct_species = {s['taxon_id']: s for s in (top_overall + top_plants + top_animals)}.values()

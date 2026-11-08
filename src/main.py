@@ -4,7 +4,7 @@ from apis.geocoding import get_coordinates, is_park
 from apis.inat_requests import get_location_observations
 from database.db_insertion import reset_db, init_db, insert_data, DB_NAME
 from processing.species_abundance import rank_species_with_grouping, rank_relative_abundance
-from processing.observation_analytics import get_monthly_activity_trends, get_peak_month_for_species  # Cleaned up unused import
+from processing.observation_analytics import get_monthly_activity_trends, get_peak_month_for_species
 from guide.pdf_generation import build_pdf_guide
 
 def run_report_pipeline():
@@ -22,7 +22,7 @@ def run_report_pipeline():
         print("Error: Location input cannot be empty.")
         return
 
-    print(f"\n[1/3] Resolving location details for '{location}'...")
+    print(f"\n[1/4] Resolving location details for '{location}'...")
     found_name, lat, lng, raw_result = get_coordinates(location)
     
     if lat is None or lng is None:
@@ -43,7 +43,7 @@ def run_report_pipeline():
                 "nelng": float(osm_bbox[3])
             }
 
-    print(f"\n[2/3] Gathering wildlife observations from iNaturalist...")
+    print(f"\n[2/4] Gathering wildlife observations from iNaturalist...")
     
     observations = get_location_observations(lat, lng, radius=5, bbox=bbox)
     
@@ -75,7 +75,7 @@ def run_report_pipeline():
             obs["latitude"] = None
             obs["longitude"] = None
         
-    print(f"\n[3/3] Saving {len(observations)} records to database...")
+    print(f"\n[3/4] Saving {len(observations)} records to database...")
     insert_data(observations)
     
     conn = sqlite3.connect(DB_NAME)
@@ -90,7 +90,7 @@ def run_report_pipeline():
     monthly_trends = get_monthly_activity_trends(cursor)
 
     # PDF rendering
-    print("\n\n[4/4] Activating document rendering engine...")
+    print("\n\n[4/4] Building PDF guide...")
     build_pdf_guide(
         location=found_name,
         top_overall=top_overall,
