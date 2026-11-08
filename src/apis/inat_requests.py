@@ -45,8 +45,16 @@ def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10
         
         try:
             print(f"Fetching page {current_page} (Collected so far: {len(all_observations)})...")
-            response = requests.get(BASE_URL, params=params, headers=headers)
-            response.raise_for_status() 
+            for attempt in range(3):
+                try:
+                    response = requests.get(BASE_URL, params=params, headers=headers, timeout=30)
+                    response.raise_for_status()
+                    break
+                except requests.exceptions.RequestException:
+                    if attempt == 2:
+                        raise
+                    print("  Request failed, retrying...")
+                    time.sleep(5)
             data = response.json()
             
             results = data.get("results", [])
