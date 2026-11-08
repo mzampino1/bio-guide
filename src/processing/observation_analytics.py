@@ -1,3 +1,9 @@
+MONTH_NAMES = {
+    "01": "January", "02": "February", "03": "March", "04": "April",
+    "05": "May", "06": "June", "07": "July", "08": "August",
+    "09": "September", "10": "October", "11": "November", "12": "December"
+}
+
 def get_monthly_activity_trends(cursor):
     """
     Extracts the month from the 'observed_on' text column to analyze seasonal activity.
@@ -16,17 +22,10 @@ def get_monthly_activity_trends(cursor):
     cursor.execute(query)
     rows = cursor.fetchall()
     
-    # Optional dictionary mapping to convert SQLite strings ("06") into clear labels
-    month_names = {
-        "01": "January", "02": "February", "03": "March", "04": "April",
-        "05": "May", "06": "June", "07": "July", "08": "August",
-        "09": "September", "10": "October", "11": "November", "12": "December"
-    }
-    
     return [
         {
             "month_num": r[0],
-            "month_name": month_names.get(r[0], "Unknown"),
+            "month_name": MONTH_NAMES.get(r[0], "Unknown"),
             "sightings": r[1],
             "species_richness": r[2]
         }
@@ -53,16 +52,10 @@ def get_peak_month_for_species(cursor, taxon_id):
     
     if not row:
         return None  # Handle edge-case where species has zero logged observations
-        
-    month_names = {
-        "01": "January", "02": "February", "03": "March", "04": "April",
-        "05": "May", "06": "June", "07": "July", "08": "August",
-        "09": "September", "10": "October", "11": "November", "12": "December"
-    }
     
     return {
         "taxon_id": taxon_id,
         "month_num": row[0],
-        "month_name": month_names.get(row[0], "Unknown"),
+        "month_name": MONTH_NAMES.get(row[0], "Unknown"),
         "sightings_in_peak_month": row[1]
     }
