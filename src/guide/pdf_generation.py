@@ -171,9 +171,9 @@ def build_pdf_guide(location, top_overall, top_plants, top_animals, relative_abu
         story.append(chart_img)
         story.append(Spacer(1, 0.15*inch))
     
-    # Relative Abundance Table Block (Top 35)
-    story.append(Paragraph("Ecosystem Relative Abundance Distribution (Top 35)", section_style))
-    abundance_rows = [["Rank", "Species (Common Name / Scientific Name)", "Sightings", "Ecosystem Share"]]
+    # Most Observed Species Table Block (Top 35)
+    story.append(Paragraph("Most Observed Species (Top 35)", section_style))
+    abundance_rows = [["Rank", "Species (Common Name / Scientific Name)", "Sightings", "% of Observations"]]
     for idx, species in enumerate(relative_abundance[:35]):
         abundance_rows.append([
             str(idx+1),
