@@ -15,7 +15,7 @@ to create a PDF biodiversity guide \
   - Tables showing top 20 plants and top 20 animals with pictures of each species, along with the month in which that species was observed most frequently
 
 ## Prerequisites:
-Python 3.14+
+Python 3.10+
 
 ## How to Use:
 1. Clone repository and navigate to the project folder:
