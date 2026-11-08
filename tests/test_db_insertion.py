@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from src.database.db_insertion import reset_db, init_db, insert_data
+from src.database.db_insertion import reset_db, init_db, insert_data, DB_NAME
 
 # Mock data simulating a typical iNaturalist response snippet
 MOCK_OBSERVATIONS = [
@@ -28,7 +28,7 @@ def test_reset_db_drops_tables(mock_connect):
     reset_db()
 
     # Check that connection targets the correct file
-    mock_connect.assert_called_with(r"tmp\bioguide.db")
+    mock_connect.assert_called_with(DB_NAME)
     
     # Verify it attempted to drop both tables
     assert mock_cursor.execute.call_count == 2
