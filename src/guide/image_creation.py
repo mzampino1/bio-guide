@@ -9,6 +9,10 @@ def generate_visual_assets(monthly_trends, unique_species, observations):
     Generates analytics charts, scatter maps, and downloads all unique species photos.
     Saves all output assets to the 'tmp' directory.
     """
+    for old in ("tmp/location_map.png", "tmp/trend_chart.png"):
+        if os.path.exists(old):
+            os.remove(old)
+    
     os.makedirs("tmp", exist_ok=True)
    
     # 1. Monthly Trends Chart
