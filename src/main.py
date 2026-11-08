@@ -51,7 +51,7 @@ def run_report_pipeline():
         print("Error: No data could be retrieved from the iNaturalist network.")
         return
         
-    print(f"Success: Retrieved {len(observations)} local observations!\n")
+    print(f"Retrieved {len(observations)} local observations.\n")
     print(f"Staging Biodiversity Report Data for {found_name}...")
     
     # Iterate through the flattened list of observations
