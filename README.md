@@ -9,7 +9,7 @@ to create a PDF biodiversity guide \
   - Map of the area with dots indicating where observations were found
 - Monthly Observation Counts
   - Bar graph showing how many observations were found in each month
-- Ecosystem Relative Abundance Distribution (Top 35)
+- Most Observed Species (Top 35)
   - Table showing the top 35 most observed species, along with the number of sightings and the percentage of total observations for each species
 - Top 20 Dominant Regional Flora/Fauna (Plants/Animals)
   - Tables showing top 20 plants and top 20 animals with pictures of each species, along with the month in which that species was observed most frequently
