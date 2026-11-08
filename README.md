@@ -1,6 +1,6 @@
 # bio-guide
 
-Given a location entered by the user, this project uses iNaturalist data (most recent 10,000 observations)
+Given a location entered by the user, this project uses iNaturalist data (up to 10,000 of the most recent observations)
 to create a PDF biodiversity guide \
 (See sample guides in `examples/` folder).
 
