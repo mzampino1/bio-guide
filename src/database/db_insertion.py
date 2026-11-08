@@ -1,11 +1,14 @@
 import sqlite3
+import os
 
-DB_NAME = r"tmp\bioguide.db"
+DB_DIR = "tmp"
+DB_NAME = os.path.join(DB_DIR, "bioguide.db")
 
 def reset_db():
     """
     Resets the database by dropping the existing tables.
     """
+    os.makedirs(DB_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     # Removes the tables entirely
