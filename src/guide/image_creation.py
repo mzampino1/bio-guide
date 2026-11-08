@@ -63,6 +63,7 @@ def generate_visual_assets(monthly_trends, unique_species, observations):
            
             ax.set_title("Wildlife Sighting Distribution", fontsize=10, fontweight='bold', color='#1B5E20', pad=8)
             ax.tick_params(axis='both', labelsize=8)
+            ax.xaxis.set_major_locator(plt.MaxNLocator(5))
            
             plt.tight_layout()
             plt.savefig("tmp/location_map.png", dpi=300)
