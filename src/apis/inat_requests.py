@@ -15,7 +15,8 @@ def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10
         "per_page": 200,
         "order": "desc",
         "order_by": "observed_on",
-        "d1": five_years_ago
+        "d1": five_years_ago,
+        "rank": "species"
     }
 
     if bbox:
