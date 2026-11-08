@@ -74,32 +74,12 @@ def run_report_pipeline():
         else:
             obs["latitude"] = None
             obs["longitude"] = None
-
-        obs_id = obs.get("id")
-        taxon_info = obs.get("taxon") or {}
-        common_name = taxon_info.get("preferred_common_name", "Unknown")
-        scientific_name = taxon_info.get("name", "Unknown")
-        observed_on = obs.get("time_observed_at", obs.get("observed_on"))
-        
-        print(f"Staged - Obs #{obs_id}: {common_name} ({scientific_name}) - Seen: {observed_on}")
         
     print(f"\n[3/3] Saving {len(observations)} records to database...")
     insert_data(observations)
     
-    # Print representation of database
-    print("\n\nDatabase contents:")
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    cursor.execute(
-        """
-        SELECT species.common_name, observations.observed_on, observations.latitude, observations.longitude
-        FROM observations 
-        JOIN species ON observations.taxon_id = species.id
-        """
-    )
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
 
     # Data extraction
     top_overall = rank_species_with_grouping(cursor, limit=35, group=None)
@@ -108,30 +88,6 @@ def run_report_pipeline():
     
     relative_abundance = rank_relative_abundance(cursor, limit=35)
     monthly_trends = get_monthly_activity_trends(cursor)
-
-    # Display top 35 most common species (Overall) in terminal
-    print("\n\nRanked Species (Overall):")
-    for species in top_overall[:35]:
-        print(f"{species['common_name']} ({species['scientific_name']}): {species['sightings']} sightings")
-        image_link = species.get("image_url", "No image available")
-        print(f"   Image: {image_link}")
-    
-    # Display relative abundance of the top 35 species
-    print("\n\nRelative Abundance:")
-    for species in relative_abundance:
-        print(f"{species['common_name']} ({species['scientific_name']}): {species['percentage']}%")
-
-    # Display monthly activity trends
-    print("\n\nMonthly Activity Trends:")
-    for trend in monthly_trends:
-        print(f"{trend['month_name']}: {trend['sightings']} sightings (Species Richness: {trend['species_richness']})")
-
-    # Display seasonal peak for the top ranked species
-    print("\n\nSpecies Seasonality Peak:")
-    for species in top_overall:
-        peak = get_peak_month_for_species(cursor, species["taxon_id"])
-        if peak:
-            print(f"{species['common_name']} peak month: {peak['month_name']} with {peak['sightings_in_peak_month']} sightings")
 
     # PDF rendering
     print("\n\n[4/4] Activating document rendering engine...")
