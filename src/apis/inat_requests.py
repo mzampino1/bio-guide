@@ -6,7 +6,7 @@ BASE_URL = "https://api.inaturalist.org/v1/observations"
 
 def get_location_observations(lat, lng, radius=5, bbox=None, max_observations=10000):
     """
-    Fetches recent observations (previous 5 year) from iNaturalist based on coordinates.
+    Fetches recent observations (past 5 years) from iNaturalist based on coordinates.
     """
     
     five_years_ago = (datetime.now() - timedelta(days=1825)).strftime("%Y-%m-%d")

@@ -90,7 +90,7 @@ def run_report_pipeline():
     monthly_trends = get_monthly_activity_trends(cursor)
 
     # PDF rendering
-    print("\n\n[4/4] Building PDF guide...")
+    print("\n[4/4] Building PDF guide...")
     build_pdf_guide(
         location=found_name,
         top_overall=top_overall,
